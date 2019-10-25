@@ -10,6 +10,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
+from flask_migrate import Migrate
 from flask_wtf import Form
 from forms import *
 #----------------------------------------------------------------------------#
@@ -17,10 +18,10 @@ from forms import *
 #----------------------------------------------------------------------------#
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # TODO: connect to a local postgresql database
 
