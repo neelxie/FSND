@@ -140,11 +140,15 @@ def search_venues():
   search_term = request.form.get('search_term', '')
   venues = Venue.query.order_by(Venue.id).filter(Venue.name.ilike(f'%{search_term}%'))
   data = [{'name': venue.name, 'id': venue.id} for venue in venues]
+  response={
+    "count": len(venues),
+    "data": data
+  }
   return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-  # shows the venue page with the given venue_id
+  data = Venue.query.get(venue_id)
   return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
@@ -205,16 +209,12 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-  # search for "band" should return "The Wild Sax Band".
+  search_term = request.form.get('search_term', '')
+  artists = Artist.query.order_by(Artist.id).filter(Artist.name.ilike(f'%{search_term}%'))
+  data = [{'name': artist.name, 'id': artist.id} for artist in artists]
   response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
+    "count": len(artists),
+    "data": data
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -266,7 +266,6 @@ def edit_artist_submission(artist_id):
       flash('Artist ' + form.name.data + ' has been updated!')
   except Exception as error:
       flash('Error! Artist' + form.name.data + 'was not updated.')
-  return redirect(url_for('show_artist', artist_id=artist_id))
 
   return redirect(url_for('show_artist', artist_id=artist_id))
 
@@ -289,8 +288,30 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-  # TODO: take values from the form submitted, and update existing
-  # venue record with ID <venue_id> using the new attributes
+  form = VenueForm(request.form)
+
+  try:
+    venue = Venue.query.get(venue_id)
+    venue.city = form.city.data
+    venue.seeking_description = form.seeking_description.data
+    venue.seeking_talent = form.seeking_talent.data
+    venue.phone = form.phone.data
+    venue.state = form.state.data
+    venue.name = form.name.data
+    venue.genres = form.genres.data
+    venue.facebook_link = form.facebook_link.data
+    venue.website = form.website.data
+    venue.image_link = form.image_link.data
+    venue.address = form.address.data
+
+    db.session.commit()
+    flash('Venue has been edited!')
+  except:
+    flash('Error! Venue was not be edited.')
+    db.session.rollback()
+  finally:
+    db.session.close()
+  
   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
