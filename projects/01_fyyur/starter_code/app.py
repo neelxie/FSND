@@ -151,20 +151,28 @@ def show_venue(venue_id):
   upcoming_shows.append(db.session.query(Show).filter_by(venue_id=data.id).filter(Show.start_time > datetime.utcnow().isoformat()).all())
   all_past_shows = db.session.query(Show).filter(venue_id == Show.venue_id).filter(Show.start_time < datetime.now()).all()
   all_upcoming_shows = db.session.query(Show).filter(venue_id == Show.venue_id).filter(Show.start_time > datetime.now()).all()
-  # past_shows = formartArtistShows(pastshows)
-  # upcoming_shows = formartArtistShows(upcomingshows)
-  # print("past_shows ", all_past_shows)
-  # print("upcoming ", all_upcoming_shows)
-  # data["past_shows"] = past_shows
-  # data["upcoming_shows"] = upcoming_shows
 
-  derek_show = {}
+  past_data = []
+  upcoming_data = []
+
+  for moja_show in upcoming_shows:
+    for anotha in moja_show:
+      show_un = {}
+      show_un["artist_id"] = anotha.Artist.id
+      show_un["artist_name"] = anotha.Artist.name
+      show_un["artist_image_link"] = anotha.Artist.image_link
+      show_un["start_time"] = anotha.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+      upcoming_data.append(show_un)
+  
   for onne in past_shows:
-    derek_show["venue_id"] = onne[0].Venue.id
-    derek_show["venue_name"] = onne[0].Venue.name
-    derek_show["venue_image_link"] = onne[0].Venue.image_link
-    derek_show["start_time"] = onne[0].start_time
-  print("sebo... ", derek_show)
+    for just_one in onne:
+      derek_show = {}
+      derek_show["artist_id"] = just_one.Artist.id
+      derek_show["artist_name"] = just_one.Artist.name
+      derek_show["artist_image_link"] = just_one.Artist.image_link
+      derek_show["start_time"] = just_one.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+      past_data.append(derek_show)
+
 
   single_venue = {}
   single_venue["id"] = data.id
@@ -179,7 +187,8 @@ def show_venue(venue_id):
   single_venue["seeking_description"] = data.seeking_description
   single_venue["artist_image_link"] = data.image_link
   single_venue["past_shows_count"] = len(past_shows[0])
-  single_venue["past_shows"] = derek_show
+  single_venue["past_shows"] = past_data
+  single_venue["upcoming_shows"] = upcoming_data
   single_venue["upcoming_shows_count"] = len(upcoming_shows[0])
   
   return render_template('pages/show_venue.html', venue=single_venue)
@@ -262,22 +271,25 @@ def show_artist(artist_id):
   all_past_shows = db.session.query(Show).filter(artist_id == Show.artist_id).filter(Show.start_time < datetime.now()).all()
   all_upcoming_shows = db.session.query(Show).filter(artist_id == Show.artist_id).filter(Show.start_time > datetime.now()).all()
 
-  # past_shows = formartArtistShows(pastshows)
-  # upcoming_shows = formartArtistShows(upcomingshows)
-  print("past_shows ", past_shows)
-  print("upcoming ", upcoming_shows)
-  # data["past_shows"] = past_shows
-  # data["upcoming_shows"] = upcoming_shows
-  past_show = {}
-  for onne in past_shows:
-    past_show["venue_id"] = onne.venue_id
-    past_show["venue_name"] = onne.venue_name
-    past_show["venue_image_link"] = onne.venue_image_link
-    past_show["start_time"] = onne.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+  past_list = []
+  upcoming_list = []
+  for shows_my in past_shows:
+    for nu_show in shows_my:
+      upcoming = {}
+      upcoming["venue_id"] = nu_show.Venue.id
+      upcoming["venue_name"] = nu_show.Venue.name
+      upcoming["venue_image_link"] = nu_show.Venue.image_link
+      upcoming["start_time"] = nu_show.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+      upcoming_list.append(upcoming)
   
-  print(past_show)
-
-
+  for venue_my in upcoming_shows:
+    for onne in venue_my:
+      past_show = {}
+      past_show["venue_id"] = onne.Venue.id
+      past_show["venue_name"] = onne.Venue.name
+      past_show["venue_image_link"] = onne.Venue.image_link
+      past_show["start_time"] = onne.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+      past_list.append(past_show)
 
   single_artist = {}
   single_artist["id"] = data.id
@@ -292,8 +304,9 @@ def show_artist(artist_id):
   single_artist["seeking_description"] = data.seeking_description
   single_artist["artist_image_link"] = data.image_link
   single_artist["past_shows_count"] = len(past_shows[0])
+  single_artist["past_shows"] = past_list
+  single_artist["upcoming_shows"] = upcoming_list
   single_artist["upcoming_shows_count"] = len(upcoming_shows[0])
-  # single_artist["start_time"] = data.start_time.strftime("%m/%d/%Y, %H:%M:%S")
 
   return render_template('pages/show_artist.html', artist=single_artist)
 
