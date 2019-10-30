@@ -114,24 +114,20 @@ def index():
 
 @app.route('/venues')
 def venues():
+  # create empty list to return database results for distinct locations
   data = []
-  all_venues = db.session.query(Venue).all()
+  all_venues = Venue.query.distinct(Venue.city, Venue.state).all()
+  # loop through the results appending data to data list
+  for venue in all_venues:
+    single_venue = {}
+    single_venue["venue_city"] = venue.city
+    single_venue["venue_state"] = venue.state
+    data.append(single_venue)
   
-  for my_venue in all_venues:
-    venue = {}
-    venue["venue_id"] = my_venue.id
-    venue["venue_name"] = my_venue.name
-    venue["genres"] = my_venue.genres
-    venue["city"] = my_venue.city
-    venue["state"] = my_venue.state
-    venue["address"] = my_venue.address
-    venue["phone"] = my_venue.phone
-    venue["website"] = my_venue.website
-    venue["image_link"] = my_venue.image_link
-    venue["seeking_talent"] = my_venue.seeking_talent
-    venue["seeking_description"] = my_venue.seeking_description
-    venue["facebook_link"] = my_venue.facebook_link
-    data.append(venue)
+  # loop through each location and getting the venues
+  for one_venue in data:
+    venues_by_location = Venue.query.filter_by(city=one_venue['venue_city'], state=one_venue['venue_state']).all()
+    one_venue["venues"] = [venue for venue in venues_by_location]
 
   return render_template('pages/venues.html', areas=data)
 
@@ -149,7 +145,44 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   data = Venue.query.get(venue_id)
-  return render_template('pages/show_venue.html', venue=data)
+  past_shows =[]
+  upcoming_shows =[]
+  past_shows.append(db.session.query(Show).filter_by(venue_id=data.id).filter(Show.start_time < datetime.utcnow().isoformat()).all())
+  upcoming_shows.append(db.session.query(Show).filter_by(venue_id=data.id).filter(Show.start_time > datetime.utcnow().isoformat()).all())
+  all_past_shows = db.session.query(Show).filter(venue_id == Show.venue_id).filter(Show.start_time < datetime.now()).all()
+  all_upcoming_shows = db.session.query(Show).filter(venue_id == Show.venue_id).filter(Show.start_time > datetime.now()).all()
+  # past_shows = formartArtistShows(pastshows)
+  # upcoming_shows = formartArtistShows(upcomingshows)
+  # print("past_shows ", all_past_shows)
+  # print("upcoming ", all_upcoming_shows)
+  # data["past_shows"] = past_shows
+  # data["upcoming_shows"] = upcoming_shows
+
+  derek_show = {}
+  for onne in past_shows:
+    derek_show["venue_id"] = onne[0].Venue.id
+    derek_show["venue_name"] = onne[0].Venue.name
+    derek_show["venue_image_link"] = onne[0].Venue.image_link
+    derek_show["start_time"] = onne[0].start_time
+  print("sebo... ", derek_show)
+
+  single_venue = {}
+  single_venue["id"] = data.id
+  single_venue["artist_name"] = data.name
+  single_venue["genres"] = data.genres
+  single_venue["city"] = data.city
+  single_venue["state"] = data.state
+  single_venue["phone"] = data.phone
+  single_venue["website"] = data.website
+  single_venue["facebook_link"] = data.facebook_link
+  single_venue["seeking_talent"] = data.seeking_talent
+  single_venue["seeking_description"] = data.seeking_description
+  single_venue["artist_image_link"] = data.image_link
+  single_venue["past_shows_count"] = len(past_shows[0])
+  single_venue["past_shows"] = derek_show
+  single_venue["upcoming_shows_count"] = len(upcoming_shows[0])
+  
+  return render_template('pages/show_venue.html', venue=single_venue)
 
 #  Create Venue
 #  ----------------------------------------------------------------
@@ -222,7 +255,47 @@ def search_artists():
 def show_artist(artist_id):
   
   data = Artist.query.get(artist_id)
-  return render_template('pages/show_artist.html', artist=data)
+  past_shows =[]
+  upcoming_shows =[]
+  past_shows.append(db.session.query(Show).filter_by(artist_id=data.id).filter(Show.start_time < datetime.utcnow().isoformat()).all())
+  upcoming_shows.append(db.session.query(Show).filter_by(artist_id=data.id).filter(Show.start_time > datetime.utcnow().isoformat()).all())
+  all_past_shows = db.session.query(Show).filter(artist_id == Show.artist_id).filter(Show.start_time < datetime.now()).all()
+  all_upcoming_shows = db.session.query(Show).filter(artist_id == Show.artist_id).filter(Show.start_time > datetime.now()).all()
+
+  # past_shows = formartArtistShows(pastshows)
+  # upcoming_shows = formartArtistShows(upcomingshows)
+  print("past_shows ", past_shows)
+  print("upcoming ", upcoming_shows)
+  # data["past_shows"] = past_shows
+  # data["upcoming_shows"] = upcoming_shows
+  past_show = {}
+  for onne in past_shows:
+    past_show["venue_id"] = onne.venue_id
+    past_show["venue_name"] = onne.venue_name
+    past_show["venue_image_link"] = onne.venue_image_link
+    past_show["start_time"] = onne.start_time.strftime(("%m/%d/%Y, %H:%M:%S"))
+  
+  print(past_show)
+
+
+
+  single_artist = {}
+  single_artist["id"] = data.id
+  single_artist["artist_name"] = data.name
+  single_artist["genres"] = data.genres
+  single_artist["city"] = data.city
+  single_artist["state"] = data.state
+  single_artist["phone"] = data.phone
+  single_artist["website"] = data.website
+  single_artist["facebook_link"] = data.facebook_link
+  single_artist["seeking_venue"] = data.seeking_venue
+  single_artist["seeking_description"] = data.seeking_description
+  single_artist["artist_image_link"] = data.image_link
+  single_artist["past_shows_count"] = len(past_shows[0])
+  single_artist["upcoming_shows_count"] = len(upcoming_shows[0])
+  # single_artist["start_time"] = data.start_time.strftime("%m/%d/%Y, %H:%M:%S")
+
+  return render_template('pages/show_artist.html', artist=single_artist)
 
 #  Update
 #  ----------------------------------------------------------------
