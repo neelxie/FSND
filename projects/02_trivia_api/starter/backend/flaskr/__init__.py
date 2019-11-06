@@ -93,11 +93,33 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
-  '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+  @app.errorhandler(400)
+  def custom400(error):
+    response = jsonify({
+        'message': error.description
+    })
+    return response, 400
+
+  @app.errorhandler(404)
+  def custom404(error):
+    response = jsonify({
+        'message': error.description
+    })
+    return response, 404
+
+  @app.errorhandler(422)
+  def custom422(error):
+    response = jsonify({
+        'message': error.description
+    })
+    return response, 422
+
+  @app.errorhandler(405)
+  def custom405(error):
+    response = jsonify({
+        'message': 'Method not allowed.'
+    })
+    return response, 405
   
   return app
 
