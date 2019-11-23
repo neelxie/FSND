@@ -93,7 +93,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Resource not found.')
+        self.assertEqual(data['message'], 'Resource not found!')
 
     def test_get_questions_of_given_category_with_successful_response(self):
         """
@@ -116,7 +116,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Resource not found.')
+        self.assertEqual(data['message'], 'Resource not found!')
 
     def test_create_a_question_with_success_response(self):
         """
@@ -138,7 +138,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(response.status_code, 201)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['message'], 'Question successfully added.')
+        self.assertEqual(data['message'], 'Question successfully added')
 
     def test_create_a_question_with_failure_response(self):
         """
@@ -189,7 +189,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Resource not found')
+        self.assertEqual(data['message'], 'Resource not found!')
 
     def test_get_quiz_question_with_success_response(self):
         """
@@ -218,7 +218,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 405)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Method not allowed')
+        self.assertEqual(data['message'], 'Method not allowed.')
 
 
 # Make the tests conveniently executable

@@ -101,7 +101,7 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'message': 'Question successfully deleted'
+                'message': 'Question successfully deleted.'
             }), 200
         except Exception as error:
             raise error
@@ -211,7 +211,6 @@ def create_app(test_config=None):
 
             if quiz_category_id:
                 question = question.filter_by(category=quiz_category_id)
-            print("weeeeeee.......", type(question))
             question = question.first().format()
 
             return jsonify({"success": True, "question": question, }), 200
@@ -223,13 +222,15 @@ def create_app(test_config=None):
     @app.errorhandler(400)
     def custom400(error):
         response = jsonify({
-            'message': error.description})
+            'success': False,
+            'message': 'Bad Request.'})
         return response, 400
 
     @app.errorhandler(404)
     def custom404(error):
         response = jsonify({
-            'message': error.description
+            'success': False,
+            'message': 'Resource not found!'
         })
         return response, 404
 
@@ -242,6 +243,7 @@ def create_app(test_config=None):
     @app.errorhandler(405)
     def custom405(error):
         response = jsonify({
+            'success': False,
             'message': 'Method not allowed.'})
         return response, 405
 
